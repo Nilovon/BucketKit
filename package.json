@@ -1,0 +1,24 @@
+{
+  "name": "BucketKit",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "biome check --write .",
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "check-types": "turbo check-types",
+    "dev:native": "turbo -F native dev",
+    "dev:web": "turbo -F web dev"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "@biomejs/biome": "2.3.8",
+    "ultracite": "6.3.10"
+  },
+  "packageManager": "pnpm@10.24.0"
+}
