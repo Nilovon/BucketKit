@@ -1,0 +1,124 @@
+---
+title: Getting Started
+description: Set up @nilovon/bucketkit-react for file uploads in React
+---
+
+# Getting Started with BucketKit React
+
+`@nilovon/bucketkit-react` provides React components and hooks for building beautiful file upload interfaces. Built with shadcn/ui patterns for easy customization.
+
+## Installation
+
+```bash
+pnpm add @nilovon/bucketkit-react
+```
+
+## Prerequisites
+
+- React 18+
+- Tailwind CSS (for default styling)
+- A backend API endpoint using `@nilovon/bucketkit-core`
+
+## Basic Setup
+
+### 1. Wrap your app with BucketKitProvider
+
+```tsx
+import { BucketKitProvider } from '@nilovon/bucketkit-react';
+
+function App() {
+  return (
+    <BucketKitProvider
+      endpoint="/api/upload"
+      onUploadComplete={(file) => {
+        console.log('Uploaded:', file.url);
+      }}
+      onError={(error, file) => {
+        console.error('Upload failed:', error.message);
+      }}
+    >
+      <YourApp />
+    </BucketKitProvider>
+  );
+}
+```
+
+### 2. Add upload components
+
+```tsx
+import {
+  BucketKitDropzone,
+  BucketKitUploadButton,
+  BucketKitUploadList,
+} from '@nilovon/bucketkit-react';
+
+function UploadPage() {
+  return (
+    <div className="space-y-4">
+      <BucketKitDropzone
+        multiple
+        accept={['image/*', 'application/pdf']}
+        maxSize={10 * 1024 * 1024}
+      />
+      
+      <BucketKitUploadButton>
+        Or click to upload
+      </BucketKitUploadButton>
+      
+      <BucketKitUploadList
+        showCancel
+        showRetry
+        showRemove
+      />
+    </div>
+  );
+}
+```
+
+## Provider Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `endpoint` | `string` | required | API endpoint for presigned URLs |
+| `headers` | `Record<string, string>` | - | Additional headers (e.g., auth) |
+| `onUploadComplete` | `(item: UploadItem) => void` | - | Called when upload succeeds |
+| `onError` | `(error: Error, item: UploadItem) => void` | - | Called when upload fails |
+| `autoUpload` | `boolean` | `true` | Start upload immediately |
+| `maxConcurrent` | `number` | `3` | Max parallel uploads |
+
+## With Authentication
+
+```tsx
+import { useAuth } from 'your-auth-library';
+
+function App() {
+  const { token } = useAuth();
+
+  return (
+    <BucketKitProvider
+      endpoint="/api/upload"
+      headers={{
+        Authorization: `Bearer ${token}`,
+      }}
+    >
+      <YourApp />
+    </BucketKitProvider>
+  );
+}
+```
+
+## Upload Flow
+
+1. User drops or selects files
+2. Files are validated client-side (size, type)
+3. For each file, request presigned URL from your API
+4. Upload directly to S3 using presigned URL
+5. Progress is tracked and displayed
+6. `onUploadComplete` is called with the final URL
+
+## Next Steps
+
+- [Components](/docs/react/components) - Explore all components
+- [Hooks](/docs/react/hooks) - Use hooks for custom UIs
+- [Styling](/docs/react/styling) - Customize the appearance
+

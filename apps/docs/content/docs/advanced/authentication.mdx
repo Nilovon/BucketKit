@@ -1,0 +1,245 @@
+---
+title: Authentication
+description: Secure your uploads with authentication
+---
+
+# Authentication
+
+BucketKit doesn't include built-in authentication, but it's designed to integrate seamlessly with your existing auth system.
+
+## Backend Authentication
+
+### Express.js with JWT
+
+```typescript
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import { createBucketKit } from '@nilovon/bucketkit-core';
+
+const app = express();
+app.use(express.json());
+
+// Auth middleware
+function authenticate(req, res, next) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: 'us-east-1',
+  bucket: 'my-uploads',
+});
+
+// Protected upload endpoint
+app.post('/api/upload', authenticate, async (req, res) => {
+  try {
+    const result = await bucketKit.createPresignedUpload({
+      ...req.body,
+      userId: req.user.id, // Associate with authenticated user
+    });
+    
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+```
+
+### Next.js with NextAuth
+
+```typescript
+// app/api/upload/route.ts
+import { getServerSession } from 'next-auth';
+import { createBucketKit } from '@nilovon/bucketkit-core';
+import { authOptions } from '@/lib/auth';
+
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: process.env.S3_REGION!,
+  bucket: process.env.S3_BUCKET!,
+});
+
+export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  
+  const body = await request.json();
+  
+  try {
+    const result = await bucketKit.createPresignedUpload({
+      ...body,
+      userId: session.user.id,
+    });
+    
+    return Response.json(result);
+  } catch (error) {
+    return Response.json(
+      { error: error.message },
+      { status: 400 }
+    );
+  }
+}
+```
+
+## Frontend Authentication
+
+### With Auth Headers
+
+```tsx
+import { BucketKitProvider } from '@nilovon/bucketkit-react';
+import { useAuth } from 'your-auth-library';
+
+function App() {
+  const { token, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+  
+  return (
+    <BucketKitProvider
+      endpoint="/api/upload"
+      headers={{
+        Authorization: `Bearer ${token}`,
+      }}
+    >
+      <UploadPage />
+    </BucketKitProvider>
+  );
+}
+```
+
+### With Cookies (Same-Origin)
+
+```tsx
+// If using cookies for auth, they're sent automatically
+<BucketKitProvider
+  endpoint="/api/upload"
+  // No headers needed - cookies are included automatically
+>
+  <UploadPage />
+</BucketKitProvider>
+```
+
+### Dynamic Token Refresh
+
+```tsx
+function App() {
+  const { getAccessToken } = useAuth();
+  const [headers, setHeaders] = useState({});
+  
+  useEffect(() => {
+    async function updateToken() {
+      const token = await getAccessToken();
+      setHeaders({ Authorization: `Bearer ${token}` });
+    }
+    
+    updateToken();
+    
+    // Refresh token periodically
+    const interval = setInterval(updateToken, 4 * 60 * 1000); // 4 minutes
+    return () => clearInterval(interval);
+  }, [getAccessToken]);
+  
+  return (
+    <BucketKitProvider endpoint="/api/upload" headers={headers}>
+      <UploadPage />
+    </BucketKitProvider>
+  );
+}
+```
+
+## Role-Based Uploads
+
+### Different Policies by Role
+
+```typescript
+app.post('/api/upload', authenticate, async (req, res) => {
+  const { role } = req.user;
+  
+  // Different policies for different roles
+  const policyByRole = {
+    admin: {
+      maxSize: 100 * 1024 * 1024, // 100 MB
+      allowedMimeTypes: ['*/*'],
+    },
+    user: {
+      maxSize: 10 * 1024 * 1024, // 10 MB
+      allowedMimeTypes: ['image/*', 'application/pdf'],
+    },
+    guest: {
+      maxSize: 1 * 1024 * 1024, // 1 MB
+      allowedMimeTypes: ['image/jpeg', 'image/png'],
+    },
+  };
+  
+  const result = await bucketKit.createPresignedUpload({
+    ...req.body,
+    userId: req.user.id,
+    policyOverrides: policyByRole[role] || policyByRole.guest,
+  });
+  
+  res.json(result);
+});
+```
+
+### Upload Quotas
+
+```typescript
+import { db } from '@/lib/database';
+
+app.post('/api/upload', authenticate, async (req, res) => {
+  const { id: userId } = req.user;
+  
+  // Check user's upload quota
+  const usage = await db.getUserStorageUsage(userId);
+  const quota = await db.getUserStorageQuota(userId);
+  
+  if (usage + req.body.size > quota) {
+    return res.status(403).json({
+      error: 'Storage quota exceeded',
+      usage,
+      quota,
+    });
+  }
+  
+  const result = await bucketKit.createPresignedUpload({
+    ...req.body,
+    userId,
+  });
+  
+  // Track the upload
+  await db.recordUpload({
+    userId,
+    key: result.key,
+    size: req.body.size,
+  });
+  
+  res.json(result);
+});
+```
+
+## Security Best Practices
+
+1. **Always validate on the server** - Client-side checks can be bypassed
+2. **Use short-lived presigned URLs** - Default 15 minutes is usually sufficient
+3. **Associate uploads with users** - Track who uploaded what
+4. **Implement rate limiting** - Prevent abuse
+5. **Validate file content** - MIME types can be spoofed, consider virus scanning
+6. **Use HTTPS** - Always use secure connections
+

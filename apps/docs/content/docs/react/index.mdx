@@ -1,0 +1,48 @@
+---
+title: React Package
+description: React components and hooks for file uploads
+---
+
+# @nilovon/bucketkit-react
+
+The React package provides components and hooks for building beautiful upload interfaces.
+
+## Features
+
+- **BucketKitDropzone** - Drag & drop file uploads
+- **BucketKitUploadButton** - Click to upload button
+- **BucketKitUploadList** - Progress tracking list
+- **Hooks** - Full control with custom UIs
+
+## Installation
+
+```bash
+pnpm add @nilovon/bucketkit-react
+```
+
+## Quick Start
+
+```tsx
+import {
+  BucketKitProvider,
+  BucketKitDropzone,
+  BucketKitUploadList,
+} from '@nilovon/bucketkit-react';
+
+function App() {
+  return (
+    <BucketKitProvider endpoint="/api/upload">
+      <BucketKitDropzone />
+      <BucketKitUploadList />
+    </BucketKitProvider>
+  );
+}
+```
+
+## Next Steps
+
+- [Getting Started](/docs/react/getting-started) - Full setup guide
+- [Components](/docs/react/components) - All available components
+- [Hooks](/docs/react/hooks) - Build custom UIs
+- [Styling](/docs/react/styling) - Customize appearance
+

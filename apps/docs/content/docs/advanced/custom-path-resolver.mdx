@@ -1,0 +1,192 @@
+---
+title: Custom Path Resolver
+description: Organize your uploaded files with custom path patterns
+---
+
+# Custom Path Resolver
+
+The path resolver determines where files are stored in your S3 bucket. By default, BucketKit uses a simple pattern, but you can customize it to match your needs.
+
+## Default Behavior
+
+Without customization, files are stored as:
+
+```
+uploads/{uniqueId}-{sanitizedFileName}
+# Example: uploads/lxq8mz4k-profile.jpg
+
+# With userId:
+uploads/{userId}/{uniqueId}-{sanitizedFileName}
+# Example: uploads/user123/lxq8mz4k-profile.jpg
+```
+
+## Custom Path Resolver
+
+```typescript
+import { createBucketKit, type PathResolverParams } from '@nilovon/bucketkit-core';
+
+function customPathResolver(params: PathResolverParams): string {
+  const { fileName, userId, contentType, size } = params;
+  
+  // Your custom logic here
+  return `custom/path/${fileName}`;
+}
+
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: 'us-east-1',
+  bucket: 'my-uploads',
+  defaultUploadPolicy: {
+    maxSize: 10 * 1024 * 1024,
+    pathResolver: customPathResolver,
+  },
+});
+```
+
+## PathResolverParams
+
+```typescript
+interface PathResolverParams {
+  fileName: string;     // Original filename
+  userId?: string;      // User ID (if provided)
+  contentType: string;  // MIME type
+  size: number;         // File size in bytes
+}
+```
+
+## Examples
+
+### Organize by Date
+
+```typescript
+function dateBasedResolver({ fileName, userId }: PathResolverParams): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  
+  const uniqueId = Date.now().toString(36);
+  
+  if (userId) {
+    return `users/${userId}/${year}/${month}/${day}/${uniqueId}-${fileName}`;
+  }
+  
+  return `public/${year}/${month}/${day}/${uniqueId}-${fileName}`;
+}
+
+// Result: users/abc123/2024/03/15/lxq8m-photo.jpg
+```
+
+### Organize by Content Type
+
+```typescript
+function typeBasedResolver({ fileName, contentType }: PathResolverParams): string {
+  const uniqueId = Date.now().toString(36);
+  
+  if (contentType.startsWith('image/')) {
+    return `images/${uniqueId}-${fileName}`;
+  }
+  if (contentType.startsWith('video/')) {
+    return `videos/${uniqueId}-${fileName}`;
+  }
+  if (contentType === 'application/pdf') {
+    return `documents/pdf/${uniqueId}-${fileName}`;
+  }
+  
+  return `files/${uniqueId}-${fileName}`;
+}
+
+// Result: images/lxq8m-photo.jpg
+//         documents/pdf/lxq8m-report.pdf
+```
+
+### Tenant-Based (Multi-tenant Apps)
+
+```typescript
+function tenantBasedResolver({ fileName, userId }: PathResolverParams): string {
+  // Assuming userId format: "tenant_user" (e.g., "acme_john")
+  const [tenant, user] = userId?.split('_') || ['public', 'anonymous'];
+  const uniqueId = Date.now().toString(36);
+  
+  return `tenants/${tenant}/users/${user}/${uniqueId}-${fileName}`;
+}
+
+// Result: tenants/acme/users/john/lxq8m-photo.jpg
+```
+
+### Hash-Based (Even Distribution)
+
+```typescript
+import crypto from 'crypto';
+
+function hashBasedResolver({ fileName }: PathResolverParams): string {
+  const hash = crypto.createHash('md5').update(fileName + Date.now()).digest('hex');
+  const prefix = hash.substring(0, 2); // First 2 chars for distribution
+  
+  return `files/${prefix}/${hash}-${fileName}`;
+}
+
+// Result: files/a7/a7b3c4d5e6f7...-photo.jpg
+```
+
+### Private vs Public
+
+```typescript
+function accessBasedResolver(
+  params: PathResolverParams,
+  isPrivate: boolean
+): string {
+  const { fileName, userId } = params;
+  const uniqueId = Date.now().toString(36);
+  
+  if (isPrivate && userId) {
+    return `private/${userId}/${uniqueId}-${fileName}`;
+  }
+  
+  return `public/${uniqueId}-${fileName}`;
+}
+
+// Use with policyOverrides
+const result = await bucketKit.createPresignedUpload({
+  fileName: 'secret.pdf',
+  contentType: 'application/pdf',
+  size: 1024,
+  userId: 'user123',
+  policyOverrides: {
+    pathResolver: (params) => accessBasedResolver(params, true),
+  },
+});
+```
+
+## Best Practices
+
+1. **Always include a unique identifier** to prevent overwrites
+2. **Sanitize filenames** - remove special characters
+3. **Keep paths reasonably short** - S3 has a 1024 character limit
+4. **Use forward slashes** - S3 uses `/` as delimiter
+5. **Avoid special characters** - stick to alphanumeric, `-`, `_`, `/`
+
+## Using with Per-Request Overrides
+
+```typescript
+// Default resolver for most uploads
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: 'us-east-1',
+  bucket: 'my-uploads',
+  defaultUploadPolicy: {
+    pathResolver: defaultResolver,
+  },
+});
+
+// Override for specific upload
+const result = await bucketKit.createPresignedUpload({
+  fileName: 'avatar.jpg',
+  contentType: 'image/jpeg',
+  size: 50000,
+  policyOverrides: {
+    pathResolver: ({ userId }) => `avatars/${userId}/current.jpg`,
+  },
+});
+```
+

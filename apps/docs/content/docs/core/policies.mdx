@@ -1,0 +1,148 @@
+---
+title: Upload Policies
+description: Configure validation rules for file uploads
+---
+
+# Upload Policies
+
+Upload policies define the validation rules for incoming files. BucketKit validates all uploads server-side before generating presigned URLs.
+
+## Default Policy
+
+When creating a BucketKit instance, you can set a default policy that applies to all uploads:
+
+```typescript
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: 'us-east-1',
+  bucket: 'my-uploads',
+  defaultUploadPolicy: {
+    maxSize: 10 * 1024 * 1024, // 10 MB
+    allowedMimeTypes: ['image/*', 'application/pdf'],
+    pathResolver: customPathResolver, // Optional
+  },
+});
+```
+
+## Policy Options
+
+### maxSize
+
+Maximum allowed file size in bytes.
+
+```typescript
+{
+  maxSize: 50 * 1024 * 1024 // 50 MB
+}
+```
+
+### allowedMimeTypes
+
+Array of allowed MIME types. Supports wildcards.
+
+```typescript
+{
+  allowedMimeTypes: [
+    'image/*',           // All image types
+    'video/*',           // All video types
+    'application/pdf',   // PDFs only
+    'application/zip',   // ZIP files
+    'text/plain',        // Plain text
+  ]
+}
+```
+
+### pathResolver
+
+Custom function to generate storage paths:
+
+```typescript
+{
+  pathResolver: ({ fileName, userId, contentType, size }) => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    
+    if (userId) {
+      return `users/${userId}/${year}/${month}/${fileName}`;
+    }
+    return `public/${year}/${month}/${fileName}`;
+  }
+}
+```
+
+## Per-Request Overrides
+
+You can override the default policy for individual requests:
+
+```typescript
+const result = await bucketKit.createPresignedUpload({
+  fileName: 'large-video.mp4',
+  contentType: 'video/mp4',
+  size: 100 * 1024 * 1024,
+  policyOverrides: {
+    maxSize: 500 * 1024 * 1024, // Allow up to 500 MB
+    allowedMimeTypes: ['video/*'],
+  },
+});
+```
+
+## Validation
+
+Use `validateUploadRequest` to check files without creating a presigned URL:
+
+```typescript
+const validation = bucketKit.validateUploadRequest({
+  fileName: 'test.exe',
+  contentType: 'application/x-msdownload',
+  size: 1024,
+});
+
+if (!validation.valid) {
+  console.log(validation.error);
+  // { code: 'INVALID_MIME_TYPE', message: '...' }
+}
+```
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `FILE_TOO_LARGE` | File exceeds maxSize |
+| `INVALID_MIME_TYPE` | File type not in allowedMimeTypes |
+| `INVALID_FILE_NAME` | Empty or invalid filename |
+
+## Examples
+
+### Images Only (max 5 MB)
+
+```typescript
+{
+  maxSize: 5 * 1024 * 1024,
+  allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+}
+```
+
+### Documents
+
+```typescript
+{
+  maxSize: 25 * 1024 * 1024,
+  allowedMimeTypes: [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain',
+  ],
+}
+```
+
+### All Media
+
+```typescript
+{
+  maxSize: 100 * 1024 * 1024,
+  allowedMimeTypes: ['image/*', 'video/*', 'audio/*'],
+}
+```
+

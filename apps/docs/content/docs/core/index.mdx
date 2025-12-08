@@ -1,0 +1,46 @@
+---
+title: Core Package
+description: Backend utilities for S3 uploads
+---
+
+# @nilovon/bucketkit-core
+
+The core package provides backend utilities for handling S3 uploads in Node.js applications.
+
+## Features
+
+- **Presigned URLs** - Generate secure upload URLs
+- **Validation** - Validate file size, type, and custom rules
+- **Path Resolution** - Organize files with custom path patterns
+- **Error Handling** - Typed errors for easy handling
+
+## Installation
+
+```bash
+pnpm add @nilovon/bucketkit-core
+```
+
+## Quick Start
+
+```typescript
+import { createBucketKit } from '@nilovon/bucketkit-core';
+
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: 'us-east-1',
+  bucket: 'my-uploads',
+});
+
+const result = await bucketKit.createPresignedUpload({
+  fileName: 'photo.jpg',
+  contentType: 'image/jpeg',
+  size: 1024000,
+});
+```
+
+## Next Steps
+
+- [Getting Started](/docs/core/getting-started) - Full setup guide
+- [Upload Policies](/docs/core/policies) - Configure validation
+- [Error Handling](/docs/core/error-handling) - Handle errors gracefully
+

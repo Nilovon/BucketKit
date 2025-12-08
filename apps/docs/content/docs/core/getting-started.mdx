@@ -1,0 +1,127 @@
+---
+title: Getting Started
+description: Set up @nilovon/bucketkit-core for server-side S3 uploads
+---
+
+# Getting Started with BucketKit Core
+
+`@nilovon/bucketkit-core` provides the backend utilities for handling S3 uploads. It generates presigned URLs, validates upload requests, and manages storage paths.
+
+## Installation
+
+```bash
+pnpm add @nilovon/bucketkit-core
+```
+
+## Prerequisites
+
+- Node.js 18+
+- An AWS S3 bucket (or S3-compatible storage like MinIO, R2)
+- AWS credentials with S3 access
+
+## Configuration
+
+### Environment Variables
+
+The simplest way to configure BucketKit is via environment variables:
+
+```bash
+# .env
+BUCKETKIT_S3_REGION=us-east-1
+BUCKETKIT_S3_BUCKET=my-uploads
+BUCKETKIT_S3_ACCESS_KEY_ID=your-access-key
+BUCKETKIT_S3_SECRET_ACCESS_KEY=your-secret-key
+```
+
+### Code Configuration
+
+You can also configure BucketKit directly in code:
+
+```typescript
+import { createBucketKit } from '@nilovon/bucketkit-core';
+
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: 'us-east-1',
+  bucket: 'my-uploads',
+  credentials: {
+    accessKeyId: 'your-access-key',
+    secretAccessKey: 'your-secret-key',
+  },
+  defaultUploadPolicy: {
+    maxSize: 10 * 1024 * 1024, // 10 MB
+    allowedMimeTypes: ['image/*', 'application/pdf'],
+  },
+});
+```
+
+## Creating an API Endpoint
+
+Here's a complete example using Express.js:
+
+```typescript
+import express from 'express';
+import { createBucketKit, BucketKitError, isBucketKitError } from '@nilovon/bucketkit-core';
+
+const app = express();
+app.use(express.json());
+
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: process.env.BUCKETKIT_S3_REGION!,
+  bucket: process.env.BUCKETKIT_S3_BUCKET!,
+  defaultUploadPolicy: {
+    maxSize: 10 * 1024 * 1024,
+    allowedMimeTypes: ['image/*', 'application/pdf'],
+  },
+});
+
+app.post('/api/upload', async (req, res) => {
+  try {
+    const { fileName, contentType, size } = req.body;
+
+    const result = await bucketKit.createPresignedUpload({
+      fileName,
+      contentType,
+      size,
+      userId: req.user?.id, // Optional: associate with user
+    });
+
+    res.json(result);
+  } catch (error) {
+    if (isBucketKitError(error)) {
+      res.status(400).json({
+        error: error.message,
+        code: error.code,
+      });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+```
+
+## API Response
+
+The `createPresignedUpload` method returns:
+
+```typescript
+interface PresignedUploadResult {
+  url: string;        // Presigned S3 URL
+  method: 'PUT';      // HTTP method
+  headers: {          // Headers for upload request
+    'Content-Type': string;
+    'Content-Length': string;
+  };
+  key: string;        // Storage path
+  publicUrl: string;  // Public URL after upload
+  expiresIn: number;  // URL expiration (seconds)
+}
+```
+
+## Next Steps
+
+- [Upload Policies](/docs/core/policies) - Configure validation rules
+- [Custom Path Resolver](/docs/advanced/custom-path-resolver) - Organize your files
+- [Error Handling](/docs/core/error-handling) - Handle upload errors gracefully
+

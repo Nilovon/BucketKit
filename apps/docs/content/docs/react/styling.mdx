@@ -1,0 +1,187 @@
+---
+title: Styling
+description: Customize the appearance of BucketKit components
+---
+
+# Styling
+
+BucketKit components are built with Tailwind CSS and follow shadcn/ui patterns. They're easy to customize.
+
+## Tailwind CSS Variables
+
+The components use CSS variables that match shadcn/ui:
+
+```css
+:root {
+  --primary: 222.2 84% 4.9%;
+  --primary-foreground: 210 40% 98%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --border: 214.3 31.8% 91.4%;
+  /* ... */
+}
+```
+
+## Custom Classes
+
+All components accept a `className` prop:
+
+```tsx
+<BucketKitDropzone
+  className="border-dashed border-blue-500 bg-blue-50 min-h-[300px]"
+/>
+
+<BucketKitUploadButton
+  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+/>
+```
+
+## Slot Classes
+
+`BucketKitUploadList` supports slot classes for sub-elements:
+
+```tsx
+<BucketKitUploadList
+  slotClassNames={{
+    item: 'bg-gray-100 rounded-xl p-4',
+    fileName: 'text-lg font-bold text-blue-600',
+    progress: 'h-3 bg-gradient-to-r from-green-400 to-blue-500',
+    status: 'uppercase tracking-wide text-xs',
+    actions: 'opacity-0 group-hover:opacity-100 transition-opacity',
+  }}
+/>
+```
+
+## Custom Dropzone Content
+
+```tsx
+<BucketKitDropzone
+  className="border-2 border-dashed rounded-2xl p-8"
+  dragActiveContent={
+    <div className="text-center animate-pulse">
+      <ArrowDownIcon className="h-16 w-16 mx-auto text-green-500" />
+      <p className="mt-4 text-xl font-bold text-green-600">Release to upload!</p>
+    </div>
+  }
+>
+  <div className="text-center">
+    <CloudIcon className="h-16 w-16 mx-auto text-gray-400" />
+    <p className="mt-4 text-lg">Drag files here</p>
+    <p className="text-sm text-gray-500">or click to browse</p>
+  </div>
+</BucketKitDropzone>
+```
+
+## Custom Item Renderer
+
+For complete control over upload items:
+
+```tsx
+<BucketKitUploadList
+  renderItem={(item, actions) => (
+    <div className="flex items-center gap-4 p-4 bg-white rounded-lg shadow">
+      {/* Thumbnail */}
+      {item.contentType.startsWith('image/') && item.status === 'complete' ? (
+        <img
+          src={item.url}
+          alt=""
+          className="h-16 w-16 rounded object-cover"
+        />
+      ) : (
+        <div className="h-16 w-16 rounded bg-gray-100 flex items-center justify-center">
+          <FileIcon className="h-8 w-8 text-gray-400" />
+        </div>
+      )}
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <p className="font-medium truncate">{item.fileName}</p>
+        <p className="text-sm text-gray-500">
+          {formatBytes(item.size)} • {item.status}
+        </p>
+        
+        {item.status === 'uploading' && (
+          <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-500 transition-all duration-300"
+              style={{ width: `${item.progress}%` }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2">
+        {item.status === 'uploading' && (
+          <button
+            onClick={actions.cancel}
+            className="p-2 hover:bg-gray-100 rounded"
+          >
+            <XIcon className="h-4 w-4" />
+          </button>
+        )}
+        {item.status === 'error' && (
+          <button
+            onClick={actions.retry}
+            className="p-2 hover:bg-gray-100 rounded text-orange-500"
+          >
+            <RefreshIcon className="h-4 w-4" />
+          </button>
+        )}
+        <button
+          onClick={actions.remove}
+          className="p-2 hover:bg-red-50 rounded text-red-500"
+        >
+          <TrashIcon className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  )}
+/>
+```
+
+## Dark Mode
+
+Components automatically adapt to dark mode using Tailwind's `dark:` variants:
+
+```tsx
+<BucketKitDropzone
+  className="
+    bg-white dark:bg-gray-900
+    border-gray-200 dark:border-gray-700
+    hover:border-blue-500 dark:hover:border-blue-400
+  "
+/>
+```
+
+## Animation Examples
+
+Add animations with Tailwind or custom CSS:
+
+```tsx
+// Pulse while uploading
+<BucketKitUploadList
+  slotClassNames={{
+    item: 'transition-all duration-300 data-[status=uploading]:animate-pulse',
+  }}
+/>
+
+// Slide in animation
+<style>
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .upload-item {
+    animation: slideIn 0.2s ease-out;
+  }
+</style>
+```
+

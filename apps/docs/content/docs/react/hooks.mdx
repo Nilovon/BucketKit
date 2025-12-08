@@ -1,0 +1,199 @@
+---
+title: Hooks
+description: React hooks for custom upload interfaces
+---
+
+# Hooks
+
+BucketKit provides hooks for building custom upload interfaces.
+
+## useBucketKitUpload
+
+The main hook for managing uploads.
+
+```tsx
+import { useBucketKitUpload } from '@nilovon/bucketkit-react';
+
+function CustomUploader() {
+  const {
+    uploadFiles,
+    addFiles,
+    items,
+    isUploading,
+    progress,
+    cancelUpload,
+    removeItem,
+    retryUpload,
+    clearCompleted,
+  } = useBucketKitUpload();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    uploadFiles(files);
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} multiple />
+      
+      {isUploading && <p>Uploading: {progress}%</p>}
+      
+      <ul>
+        {items.map((item) => (
+          <li key={item.id}>
+            {item.fileName}: {item.status}
+            {item.status === 'uploading' && (
+              <button onClick={() => cancelUpload(item.id)}>Cancel</button>
+            )}
+          </li>
+        ))}
+      </ul>
+      
+      <button onClick={clearCompleted}>Clear completed</button>
+    </div>
+  );
+}
+```
+
+### Return Value
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `uploadFiles` | `(files?: File[]) => Promise<void>` | Add and upload files |
+| `addFiles` | `(files: File[]) => void` | Add files to queue |
+| `items` | `UploadItem[]` | List of upload items |
+| `isUploading` | `boolean` | Any upload in progress |
+| `progress` | `number` | Overall progress (0-100) |
+| `cancelUpload` | `(id: string) => void` | Cancel specific upload |
+| `removeItem` | `(id: string) => void` | Remove from list |
+| `retryUpload` | `(id: string) => void` | Retry failed upload |
+| `clearCompleted` | `() => void` | Clear completed items |
+
+---
+
+## useUploadItemActions
+
+Get actions for a specific upload item.
+
+```tsx
+import { useUploadItemActions } from '@nilovon/bucketkit-react';
+
+function UploadItemRow({ item }: { item: UploadItem }) {
+  const { cancel, remove, retry } = useUploadItemActions(item.id);
+
+  return (
+    <div className="flex items-center gap-2">
+      <span>{item.fileName}</span>
+      {item.status === 'uploading' && (
+        <button onClick={cancel}>Cancel</button>
+      )}
+      {item.status === 'error' && (
+        <button onClick={retry}>Retry</button>
+      )}
+      <button onClick={remove}>Remove</button>
+    </div>
+  );
+}
+```
+
+---
+
+## useUploadStats
+
+Get upload statistics.
+
+```tsx
+import { useUploadStats } from '@nilovon/bucketkit-react';
+
+function UploadStats() {
+  const stats = useUploadStats();
+
+  return (
+    <div className="grid grid-cols-4 gap-4">
+      <div>
+        <p className="text-2xl font-bold">{stats.total}</p>
+        <p className="text-sm text-gray-500">Total</p>
+      </div>
+      <div>
+        <p className="text-2xl font-bold">{stats.queued}</p>
+        <p className="text-sm text-gray-500">Queued</p>
+      </div>
+      <div>
+        <p className="text-2xl font-bold">{stats.uploading}</p>
+        <p className="text-sm text-gray-500">Uploading</p>
+      </div>
+      <div>
+        <p className="text-2xl font-bold">{stats.complete}</p>
+        <p className="text-sm text-gray-500">Complete</p>
+      </div>
+    </div>
+  );
+}
+```
+
+### Stats Object
+
+```typescript
+{
+  total: number;        // Total items
+  queued: number;       // Waiting to upload
+  uploading: number;    // Currently uploading
+  complete: number;     // Successfully uploaded
+  error: number;        // Failed uploads
+  totalBytes: number;   // Total size
+  uploadedBytes: number; // Bytes uploaded
+}
+```
+
+---
+
+## useCompletedUploads
+
+Get only completed uploads.
+
+```tsx
+import { useCompletedUploads } from '@nilovon/bucketkit-react';
+
+function UploadedFiles() {
+  const completed = useCompletedUploads();
+
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      {completed.map((item) => (
+        <a
+          key={item.id}
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block p-4 border rounded hover:bg-gray-50"
+        >
+          {item.contentType.startsWith('image/') && (
+            <img src={item.url} alt={item.fileName} className="w-full h-32 object-cover" />
+          )}
+          <p className="mt-2 text-sm truncate">{item.fileName}</p>
+        </a>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+## UploadItem Type
+
+```typescript
+interface UploadItem {
+  id: string;
+  fileName: string;
+  size: number;
+  status: 'queued' | 'uploading' | 'complete' | 'error';
+  progress: number;
+  error?: string;
+  url?: string;
+  key?: string;
+  contentType: string;
+  file: File;
+}
+```
+

@@ -1,0 +1,123 @@
+---
+title: Introduction
+description: S3 Upload Library for Node.js and React
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+# Nilovon BucketKit
+
+**BucketKit** is a modern, type-safe S3 upload library for Node.js and React applications. It provides a simple yet powerful API for handling file uploads with presigned URLs, validation, and beautiful UI components.
+
+## Features
+
+- 🚀 **Easy to use** - Simple API with sensible defaults
+- 📦 **Type-safe** - Full TypeScript support with strict types
+- 🔒 **Secure** - Server-side validation and presigned URLs
+- 🎨 **Beautiful UI** - shadcn/ui-based React components
+- ⚡ **Fast** - Direct-to-S3 uploads with progress tracking
+- 🔌 **Extensible** - Custom policies, path resolvers, and theming
+
+## Packages
+
+<Cards>
+  <Card 
+    title="@nilovon/bucketkit-core" 
+    description="Backend utilities for S3 uploads"
+    href="/docs/core/getting-started"
+  />
+  <Card 
+    title="@nilovon/bucketkit-react" 
+    description="React components and hooks"
+    href="/docs/react/getting-started"
+  />
+</Cards>
+
+## Quick Start
+
+### Installation
+
+```bash
+# Install both packages
+pnpm add @nilovon/bucketkit-core @nilovon/bucketkit-react
+
+# Or install separately
+pnpm add @nilovon/bucketkit-core  # Backend only
+pnpm add @nilovon/bucketkit-react # Frontend only
+```
+
+### Backend Setup
+
+```typescript
+import { createBucketKit } from '@nilovon/bucketkit-core';
+
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: 'us-east-1',
+  bucket: 'my-uploads',
+  defaultUploadPolicy: {
+    maxSize: 10 * 1024 * 1024, // 10 MB
+    allowedMimeTypes: ['image/*', 'application/pdf'],
+  },
+});
+
+// In your API route handler
+const result = await bucketKit.createPresignedUpload({
+  fileName: 'photo.jpg',
+  contentType: 'image/jpeg',
+  size: 1024000,
+});
+
+// Returns: { url, method, headers, key, publicUrl, expiresIn }
+```
+
+### Frontend Setup
+
+```tsx
+import {
+  BucketKitProvider,
+  BucketKitDropzone,
+  BucketKitUploadList,
+} from '@nilovon/bucketkit-react';
+
+function App() {
+  return (
+    <BucketKitProvider
+      endpoint="/api/upload"
+      onUploadComplete={(file) => console.log('Uploaded:', file.url)}
+    >
+      <BucketKitDropzone
+        multiple
+        accept={['image/*', 'application/pdf']}
+        maxSize={10 * 1024 * 1024}
+      />
+      <BucketKitUploadList />
+    </BucketKitProvider>
+  );
+}
+```
+
+## Next Steps
+
+<Cards>
+  <Card 
+    title="Backend Setup" 
+    description="Learn how to configure the server-side"
+    href="/docs/core/getting-started"
+  />
+  <Card 
+    title="React Components" 
+    description="Explore the UI components"
+    href="/docs/react/getting-started"
+  />
+  <Card 
+    title="Upload Policies" 
+    description="Configure validation and paths"
+    href="/docs/core/policies"
+  />
+  <Card 
+    title="Advanced Usage" 
+    description="Custom configurations and auth"
+    href="/docs/advanced/custom-path-resolver"
+  />
+</Cards>

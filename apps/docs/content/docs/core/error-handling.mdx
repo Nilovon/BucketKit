@@ -1,0 +1,127 @@
+---
+title: Error Handling
+description: Handle BucketKit errors gracefully
+---
+
+# Error Handling
+
+BucketKit provides a typed error system for handling upload failures gracefully.
+
+## BucketKitError
+
+All BucketKit errors extend the `BucketKitError` class:
+
+```typescript
+import { BucketKitError, isBucketKitError } from '@nilovon/bucketkit-core';
+
+try {
+  await bucketKit.createPresignedUpload({ ... });
+} catch (error) {
+  if (isBucketKitError(error)) {
+    console.log(error.code);    // 'FILE_TOO_LARGE'
+    console.log(error.message); // 'File size exceeds...'
+    console.log(error.meta);    // { fileName: '...', size: ... }
+  }
+}
+```
+
+## Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| `FILE_TOO_LARGE` | 400 | File exceeds maxSize policy |
+| `INVALID_MIME_TYPE` | 400 | File type not allowed |
+| `INVALID_FILE_NAME` | 400 | Empty or invalid filename |
+| `MISSING_CREDENTIALS` | 500 | S3 credentials not configured |
+| `MISSING_CONFIG` | 500 | Required config missing |
+| `S3_ERROR` | 502 | S3 operation failed |
+| `INTERNAL_ERROR` | 500 | Unexpected error |
+
+## Type Guard
+
+Use `isBucketKitError` to safely check error types:
+
+```typescript
+import { isBucketKitError } from '@nilovon/bucketkit-core';
+
+function handleError(error: unknown) {
+  if (isBucketKitError(error)) {
+    // TypeScript knows this is BucketKitError
+    switch (error.code) {
+      case 'FILE_TOO_LARGE':
+        return 'Please upload a smaller file';
+      case 'INVALID_MIME_TYPE':
+        return 'This file type is not supported';
+      default:
+        return error.message;
+    }
+  }
+  return 'An unexpected error occurred';
+}
+```
+
+## API Response Pattern
+
+Here's a recommended pattern for API routes:
+
+```typescript
+app.post('/api/upload', async (req, res) => {
+  try {
+    const result = await bucketKit.createPresignedUpload(req.body);
+    res.json(result);
+  } catch (error) {
+    if (isBucketKitError(error)) {
+      const status = getStatusForError(error.code);
+      res.status(status).json({
+        error: error.message,
+        code: error.code,
+        meta: error.meta,
+      });
+    } else {
+      console.error('Unexpected error:', error);
+      res.status(500).json({
+        error: 'Internal server error',
+        code: 'INTERNAL_ERROR',
+      });
+    }
+  }
+});
+
+function getStatusForError(code: string): number {
+  switch (code) {
+    case 'FILE_TOO_LARGE':
+    case 'INVALID_MIME_TYPE':
+    case 'INVALID_FILE_NAME':
+      return 400; // Bad Request
+    case 'MISSING_CREDENTIALS':
+    case 'MISSING_CONFIG':
+    case 'INTERNAL_ERROR':
+      return 500; // Internal Server Error
+    case 'S3_ERROR':
+      return 502; // Bad Gateway
+    default:
+      return 500;
+  }
+}
+```
+
+## Error Serialization
+
+`BucketKitError` has a `toJSON()` method for easy serialization:
+
+```typescript
+const error = new BucketKitError(
+  'FILE_TOO_LARGE',
+  'File is too large',
+  { maxSize: 10485760, actualSize: 52428800 }
+);
+
+console.log(JSON.stringify(error));
+// {
+//   "name": "BucketKitError",
+//   "code": "FILE_TOO_LARGE",
+//   "message": "File is too large",
+//   "meta": { "maxSize": 10485760, "actualSize": 52428800 }
+// }
+```
+

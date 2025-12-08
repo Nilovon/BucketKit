@@ -1,49 +1,120 @@
-# BucketKit
+# 📦 BucketKit
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines React, TanStack Start, and more.
+Modern, type-safe S3 upload library for Node.js and React.
 
-## Features
+## 🎯 Overview
 
-- **TypeScript** - For type safety and improved developer experience
-- **TanStack Start** - SSR framework with TanStack Router
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **shadcn/ui** - Reusable UI components
-- **Turborepo** - Optimized monorepo build system
+BucketKit simplifies file uploads to S3 (and S3-compatible storage like MinIO, Cloudflare R2). It provides:
 
-## Getting Started
+- 🔧 **Backend utilities** for generating presigned URLs and validating uploads
+- ⚛️ **React components** for building beautiful upload interfaces
+- 📝 **Full TypeScript support** with strict types
 
-First, install the dependencies:
+## 📚 Packages
+
+| Package | Description |
+|---------|-------------|
+| `@nilovon/bucketkit-core` | Backend utilities for presigned URLs, validation, policies |
+| `@nilovon/bucketkit-react` | React components and hooks for upload UIs |
+
+## 🚀 Quick Start
+
+### Installation
 
 ```bash
-pnpm install
+pnpm add @nilovon/bucketkit-core @nilovon/bucketkit-react
 ```
 
+### Backend
 
-Then, run the development server:
+```typescript
+import { createBucketKit } from '@nilovon/bucketkit-core';
 
-```bash
-pnpm run dev
+const bucketKit = createBucketKit({
+  provider: 'aws-s3',
+  region: 'us-east-1',
+  bucket: 'my-uploads',
+  defaultUploadPolicy: {
+    maxSize: 10 * 1024 * 1024,
+    allowedMimeTypes: ['image/*', 'application/pdf'],
+  },
+});
+
+// In your API route
+const result = await bucketKit.createPresignedUpload({
+  fileName: 'photo.jpg',
+  contentType: 'image/jpeg',
+  size: 1024000,
+});
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
+### Frontend
 
+```tsx
+import { BucketKitProvider, BucketKitDropzone } from '@nilovon/bucketkit-react';
 
+function App() {
+  return (
+    <BucketKitProvider endpoint="/api/upload">
+      <BucketKitDropzone />
+    </BucketKitProvider>
+  );
+}
+```
 
-
-
-
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 BucketKit/
 ├── apps/
-│   ├── web/         # Frontend application (React + TanStack Start)
+│   ├── web/          # Demo app (TanStack Start)
+│   └── docs/         # Documentation (Fumadocs)
+├── packages/
+│   ├── bucketkit-core/    # @nilovon/bucketkit-core
+│   └── bucketkit-react/   # @nilovon/bucketkit-react
 ```
 
-## Available Scripts
+## 🛠️ Development
 
-- `pnpm run dev`: Start all applications in development mode
-- `pnpm run build`: Build all applications
-- `pnpm run dev:web`: Start only the web application
-- `pnpm run check-types`: Check TypeScript types across all apps
+```bash
+# Install dependencies
+pnpm install
+
+# Start all apps
+pnpm dev
+
+# Start specific app
+pnpm dev:web     # Demo at http://localhost:3001
+pnpm --filter docs dev  # Docs at http://localhost:4000
+
+# Build all packages
+pnpm build
+
+# Run tests
+pnpm --filter @nilovon/bucketkit-core test
+```
+
+## 🔐 Environment Variables
+
+For the core package to work, set these environment variables:
+
+```bash
+BUCKETKIT_S3_REGION=us-east-1
+BUCKETKIT_S3_BUCKET=my-bucket
+BUCKETKIT_S3_ACCESS_KEY_ID=your-access-key
+BUCKETKIT_S3_SECRET_ACCESS_KEY=your-secret-key
+```
+
+## 📖 Documentation
+
+Visit the [documentation](http://localhost:4000) for detailed guides:
+
+- 🏁 Getting Started
+- ✅ Upload Policies
+- 🎨 React Components
+- 🗂️ Custom Path Resolvers
+- 🔒 Authentication
+
+## 📄 License
+
+MIT
