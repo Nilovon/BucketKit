@@ -46,7 +46,7 @@ export default function Header() {
           </Link>
           <a
             className="rounded-md px-3 py-1.5 text-sm text-stone-400 transition-colors hover:text-stone-100"
-            href="http://localhost:4000/docs"
+            href="https://bukketkit-docs.nilovon.com/"
           >
             Docs
           </a>

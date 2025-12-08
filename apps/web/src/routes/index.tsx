@@ -40,7 +40,7 @@ function HomeComponent() {
             </Link>
             <a
               className="inline-flex items-center gap-2 rounded-lg border border-stone-700 px-6 py-3 font-medium text-stone-300 transition-colors hover:border-stone-600 hover:text-stone-100"
-              href="http://localhost:4000/docs"
+              href="https://bukketkit-docs.nilovon.com/"
             >
               Documentation
             </a>
@@ -196,7 +196,10 @@ function HomeComponent() {
         <div className="mx-auto max-w-4xl text-center">
           <p className="text-sm text-stone-600">
             Built by{" "}
-            <a className="text-stone-500 hover:text-stone-400" href="https://nilovon.com">
+            <a
+              className="text-stone-500 hover:text-stone-400"
+              href="https://nilovon.com"
+            >
               Nilovon
             </a>
           </p>
