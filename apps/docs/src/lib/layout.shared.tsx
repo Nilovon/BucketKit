@@ -27,7 +27,7 @@ export function baseOptions(): BaseLayoutProps {
     links: [
       {
         text: "Demo",
-        url: "https://bukketkit.nilovon.com/upload",
+        url: "https://bucketkit.nilovon.com/upload",
       },
       {
         text: "GitHub",

@@ -40,7 +40,7 @@ function HomeComponent() {
             </Link>
             <a
               className="inline-flex items-center gap-2 rounded-lg border border-stone-700 px-6 py-3 font-medium text-stone-300 transition-colors hover:border-stone-600 hover:text-stone-100"
-              href="https://bukketkit-docs.nilovon.com/"
+              href="https://bucketkit-docs.nilovon.com/"
             >
               Documentation
             </a>
