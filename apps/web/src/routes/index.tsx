@@ -71,7 +71,7 @@ function HomeComponent() {
                 <span className="text-rose-400">from</span>
                 <span className="text-amber-300">
                   {" "}
-                  "@nilovon/bucketkit-react"
+                  "@nilovonjs/bucketkit-react"
                 </span>
                 {"\n\n"}
                 <span className="text-rose-400">{"<"}</span>
@@ -137,26 +137,26 @@ function HomeComponent() {
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="rounded-xl border border-stone-800 bg-stone-900/30 p-6">
               <div className="mb-3 font-mono text-amber-400 text-sm">
-                @nilovon/bucketkit-core
+                @nilovonjs/bucketkit-core
               </div>
               <p className="mb-4 text-sm text-stone-400">
                 Backend utilities for presigned URLs, validation, and storage
                 policies.
               </p>
               <div className="code-block">
-                <code>pnpm add @nilovon/bucketkit-core</code>
+                <code>pnpm add @nilovonjs/bucketkit-core</code>
               </div>
             </div>
 
             <div className="rounded-xl border border-stone-800 bg-stone-900/30 p-6">
               <div className="mb-3 font-mono text-amber-400 text-sm">
-                @nilovon/bucketkit-react
+                @nilovonjs/bucketkit-react
               </div>
               <p className="mb-4 text-sm text-stone-400">
                 React components and hooks for beautiful upload interfaces.
               </p>
               <div className="code-block">
-                <code>pnpm add @nilovon/bucketkit-react</code>
+                <code>pnpm add @nilovonjs/bucketkit-react</code>
               </div>
             </div>
           </div>

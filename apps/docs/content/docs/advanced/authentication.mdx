@@ -14,7 +14,7 @@ BucketKit doesn't include built-in authentication, but it's designed to integrat
 ```typescript
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { createBucketKit } from '@nilovon/bucketkit-core';
+import { createBucketKit } from '@nilovonjs/bucketkit-core';
 
 const app = express();
 app.use(express.json());
@@ -62,7 +62,7 @@ app.post('/api/upload', authenticate, async (req, res) => {
 ```typescript
 // app/api/upload/route.ts
 import { getServerSession } from 'next-auth';
-import { createBucketKit } from '@nilovon/bucketkit-core';
+import { createBucketKit } from '@nilovonjs/bucketkit-core';
 import { authOptions } from '@/lib/auth';
 
 const bucketKit = createBucketKit({
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
 ### With Auth Headers
 
 ```tsx
-import { BucketKitProvider } from '@nilovon/bucketkit-react';
+import { BucketKitProvider } from '@nilovonjs/bucketkit-react';
 import { useAuth } from 'your-auth-library';
 
 function App() {

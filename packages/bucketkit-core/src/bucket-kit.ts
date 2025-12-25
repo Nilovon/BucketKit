@@ -98,7 +98,7 @@ function mergePolicy(
  *
  * @example
  * ```typescript
- * import { createBucketKit } from '@nilovon/bucketkit-core';
+ * import { createBucketKit } from '@nilovonjs/bucketkit-core';
  *
  * const bucketKit = createBucketKit({
  *   provider: 'aws-s3',
@@ -190,12 +190,14 @@ export function createBucketKit(config: BucketKitConfig): BucketKit {
    */
   function getPublicUrl(key: string): string {
     if (resolvedConfig.publicUrlBase) {
+      // biome-ignore lint/performance/useTopLevelRegex: this is a regex literal
       const base = resolvedConfig.publicUrlBase.replace(/\/$/, "");
       return `${base}/${key}`;
     }
 
     // Default S3 URL pattern
     if (resolvedConfig.endpoint) {
+      // biome-ignore lint/performance/useTopLevelRegex: this is a regex literal
       const endpoint = resolvedConfig.endpoint.replace(/\/$/, "");
       if (resolvedConfig.forcePathStyle) {
         return `${endpoint}/${resolvedConfig.bucket}/${key}`;
@@ -226,7 +228,7 @@ export function createBucketKit(config: BucketKitConfig): BucketKit {
           | "FILE_TOO_LARGE"
           | "INVALID_MIME_TYPE"
           | "INVALID_FILE_NAME",
-        validation.error?.message,
+        validation.error?.message ?? "",
         {
           fileName: params.fileName,
           contentType: params.contentType,

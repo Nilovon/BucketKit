@@ -1,16 +1,16 @@
 ---
 title: Getting Started
-description: Set up @nilovon/bucketkit-core for server-side S3 uploads
+description: Set up @nilovonjs/bucketkit-core for server-side S3 uploads
 ---
 
 # Getting Started with BucketKit Core
 
-`@nilovon/bucketkit-core` provides the backend utilities for handling S3 uploads. It generates presigned URLs, validates upload requests, and manages storage paths.
+`@nilovonjs/bucketkit-core` provides the backend utilities for handling S3 uploads. It generates presigned URLs, validates upload requests, and manages storage paths.
 
 ## Installation
 
 ```bash
-pnpm add @nilovon/bucketkit-core
+pnpm add @nilovonjs/bucketkit-core
 ```
 
 ## Prerequisites
@@ -38,7 +38,7 @@ BUCKETKIT_S3_SECRET_ACCESS_KEY=your-secret-key
 You can also configure BucketKit directly in code:
 
 ```typescript
-import { createBucketKit } from '@nilovon/bucketkit-core';
+import { createBucketKit } from '@nilovonjs/bucketkit-core';
 
 const bucketKit = createBucketKit({
   provider: 'aws-s3',
@@ -61,7 +61,7 @@ Here's a complete example using Express.js:
 
 ```typescript
 import express from 'express';
-import { createBucketKit, BucketKitError, isBucketKitError } from '@nilovon/bucketkit-core';
+import { createBucketKit, BucketKitError, isBucketKitError } from '@nilovonjs/bucketkit-core';
 
 const app = express();
 app.use(express.json());

@@ -1,5 +1,5 @@
 /**
- * @nilovon/bucketkit-core
+ * @nilovonjs/bucketkit-core
  *
  * S3 Upload Library for Node.js - Core utilities for presigned URLs,
  * validation, and upload policies.

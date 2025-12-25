@@ -22,12 +22,12 @@ import { Cards, Card } from 'fumadocs-ui/components/card';
 
 <Cards>
   <Card 
-    title="@nilovon/bucketkit-core" 
+    title="@nilovonjs/bucketkit-core" 
     description="Backend utilities for S3 uploads"
     href="/core/getting-started"
   />
   <Card 
-    title="@nilovon/bucketkit-react" 
+    title="@nilovonjs/bucketkit-react" 
     description="React components and hooks"
     href="/react/getting-started"
   />
@@ -39,17 +39,17 @@ import { Cards, Card } from 'fumadocs-ui/components/card';
 
 ```bash
 # Install both packages
-pnpm add @nilovon/bucketkit-core @nilovon/bucketkit-react
+pnpm add @nilovonjs/bucketkit-core @nilovonjs/bucketkit-react
 
 # Or install separately
-pnpm add @nilovon/bucketkit-core  # Backend only
-pnpm add @nilovon/bucketkit-react # Frontend only
+pnpm add @nilovonjs/bucketkit-core  # Backend only
+pnpm add @nilovonjs/bucketkit-react # Frontend only
 ```
 
 ### Backend Setup
 
 ```typescript
-import { createBucketKit } from '@nilovon/bucketkit-core';
+import { createBucketKit } from '@nilovonjs/bucketkit-core';
 
 const bucketKit = createBucketKit({
   provider: 'aws-s3',
@@ -78,7 +78,7 @@ import {
   BucketKitProvider,
   BucketKitDropzone,
   BucketKitUploadList,
-} from '@nilovon/bucketkit-react';
+} from '@nilovonjs/bucketkit-react';
 
 function App() {
   return (

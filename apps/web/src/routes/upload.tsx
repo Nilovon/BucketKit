@@ -6,7 +6,7 @@ import {
   type UploadItem,
   useBucketKitUpload,
   useUploadStats,
-} from "@nilovon/bucketkit-react";
+} from "@nilovonjs/bucketkit-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 

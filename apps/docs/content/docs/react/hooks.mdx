@@ -12,7 +12,7 @@ BucketKit provides hooks for building custom upload interfaces.
 The main hook for managing uploads.
 
 ```tsx
-import { useBucketKitUpload } from '@nilovon/bucketkit-react';
+import { useBucketKitUpload } from '@nilovonjs/bucketkit-react';
 
 function CustomUploader() {
   const {
@@ -76,7 +76,7 @@ function CustomUploader() {
 Get actions for a specific upload item.
 
 ```tsx
-import { useUploadItemActions } from '@nilovon/bucketkit-react';
+import { useUploadItemActions } from '@nilovonjs/bucketkit-react';
 
 function UploadItemRow({ item }: { item: UploadItem }) {
   const { cancel, remove, retry } = useUploadItemActions(item.id);
@@ -103,7 +103,7 @@ function UploadItemRow({ item }: { item: UploadItem }) {
 Get upload statistics.
 
 ```tsx
-import { useUploadStats } from '@nilovon/bucketkit-react';
+import { useUploadStats } from '@nilovonjs/bucketkit-react';
 
 function UploadStats() {
   const stats = useUploadStats();
@@ -152,7 +152,7 @@ function UploadStats() {
 Get only completed uploads.
 
 ```tsx
-import { useCompletedUploads } from '@nilovon/bucketkit-react';
+import { useCompletedUploads } from '@nilovonjs/bucketkit-react';
 
 function UploadedFiles() {
   const completed = useCompletedUploads();

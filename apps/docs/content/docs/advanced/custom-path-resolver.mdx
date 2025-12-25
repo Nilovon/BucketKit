@@ -23,7 +23,7 @@ uploads/{userId}/{uniqueId}-{sanitizedFileName}
 ## Custom Path Resolver
 
 ```typescript
-import { createBucketKit, type PathResolverParams } from '@nilovon/bucketkit-core';
+import { createBucketKit, type PathResolverParams } from '@nilovonjs/bucketkit-core';
 
 function customPathResolver(params: PathResolverParams): string {
   const { fileName, userId, contentType, size } = params;

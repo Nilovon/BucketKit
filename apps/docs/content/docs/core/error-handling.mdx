@@ -12,7 +12,7 @@ BucketKit provides a typed error system for handling upload failures gracefully.
 All BucketKit errors extend the `BucketKitError` class:
 
 ```typescript
-import { BucketKitError, isBucketKitError } from '@nilovon/bucketkit-core';
+import { BucketKitError, isBucketKitError } from '@nilovonjs/bucketkit-core';
 
 try {
   await bucketKit.createPresignedUpload({ ... });
@@ -42,7 +42,7 @@ try {
 Use `isBucketKitError` to safely check error types:
 
 ```typescript
-import { isBucketKitError } from '@nilovon/bucketkit-core';
+import { isBucketKitError } from '@nilovonjs/bucketkit-core';
 
 function handleError(error: unknown) {
   if (isBucketKitError(error)) {

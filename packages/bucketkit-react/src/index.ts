@@ -1,5 +1,5 @@
 /**
- * @nilovon/bucketkit-react
+ * @nilovonjs/bucketkit-react
  *
  * React components and hooks for S3 uploads - Built with shadcn/ui
  *

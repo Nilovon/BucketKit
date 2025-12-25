@@ -14,21 +14,21 @@ BucketKit simplifies file uploads to S3 (and S3-compatible storage like MinIO, C
 
 | Package | Description |
 |---------|-------------|
-| `@nilovon/bucketkit-core` | Backend utilities for presigned URLs, validation, policies |
-| `@nilovon/bucketkit-react` | React components and hooks for upload UIs |
+| `@nilovonjs/bucketkit-core` | Backend utilities for presigned URLs, validation, policies |
+| `@nilovonjs/bucketkit-react` | React components and hooks for upload UIs |
 
 ## 🚀 Quick Start
 
 ### Installation
 
 ```bash
-pnpm add @nilovon/bucketkit-core @nilovon/bucketkit-react
+pnpm add @nilovonjs/bucketkit-core @nilovonjs/bucketkit-react
 ```
 
 ### Backend
 
 ```typescript
-import { createBucketKit } from '@nilovon/bucketkit-core';
+import { createBucketKit } from '@nilovonjs/bucketkit-core';
 
 const bucketKit = createBucketKit({
   provider: 'aws-s3',
@@ -51,7 +51,7 @@ const result = await bucketKit.createPresignedUpload({
 ### Frontend
 
 ```tsx
-import { BucketKitProvider, BucketKitDropzone } from '@nilovon/bucketkit-react';
+import { BucketKitProvider, BucketKitDropzone } from '@nilovonjs/bucketkit-react';
 
 function App() {
   return (
@@ -70,8 +70,8 @@ BucketKit/
 │   ├── web/          # Demo app (TanStack Start)
 │   └── docs/         # Documentation (Fumadocs)
 ├── packages/
-│   ├── bucketkit-core/    # @nilovon/bucketkit-core
-│   └── bucketkit-react/   # @nilovon/bucketkit-react
+│   ├── bucketkit-core/    # @nilovonjs/bucketkit-core
+│   └── bucketkit-react/   # @nilovonjs/bucketkit-react
 ```
 
 ## 🛠️ Development
@@ -91,7 +91,7 @@ pnpm --filter docs dev  # Docs at http://localhost:4000
 pnpm build
 
 # Run tests
-pnpm --filter @nilovon/bucketkit-core test
+pnpm --filter @nilovonjs/bucketkit-core test
 ```
 
 ## 🔐 Environment Variables

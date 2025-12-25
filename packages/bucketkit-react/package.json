@@ -1,6 +1,6 @@
 {
-  "name": "@nilovon/bucketkit-react",
-  "version": "0.1.0",
+  "name": "@nilovonjs/bucketkit-react",
+  "version": "0.1.1",
   "description": "React components and hooks for S3 uploads - Built with shadcn/ui",
   "type": "module",
   "main": "./dist/index.js",
@@ -51,5 +51,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

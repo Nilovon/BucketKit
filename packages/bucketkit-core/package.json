@@ -1,6 +1,6 @@
 {
-  "name": "@nilovon/bucketkit-core",
-  "version": "0.1.0",
+  "name": "@nilovonjs/bucketkit-core",
+  "version": "0.1.1",
   "description": "S3 Upload Library for Node.js - Core utilities for presigned URLs, validation, and upload policies",
   "type": "module",
   "main": "./dist/index.js",
@@ -46,5 +46,8 @@
   "peerDependencies": {},
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
